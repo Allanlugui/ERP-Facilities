@@ -23,6 +23,11 @@ export const NewTicketModal: React.FC<NewTicketModalProps> = ({
   const [priority, setPriority] = useState<TicketPriority>('MEDIA');
   const [submitting, setSubmitting] = useState(false);
 
+  const [assetCode, setAssetCode] = useState('');
+  const [costCenter, setCostCenter] = useState('CC-FAC-2026');
+  const [impactLevel, setImpactLevel] = useState<'NENHUM' | 'PARCIAL' | 'TOTAL'>('PARCIAL');
+  const [attachmentName, setAttachmentName] = useState('');
+
   if (!isOpen) return null;
 
   const getSlaHours = (p: TicketPriority) => {
@@ -51,6 +56,10 @@ export const NewTicketModal: React.FC<NewTicketModalProps> = ({
         locationArea,
         priority,
         slaHours: getSlaHours(priority),
+        assetCode,
+        costCenter,
+        impactLevel,
+        attachmentName,
         requesterName: 'Roberto Santos (Cliente TechCorp)'
       });
       onClose();
@@ -140,6 +149,56 @@ export const NewTicketModal: React.FC<NewTicketModalProps> = ({
                   <option key={u.id} value={u.id}>{u.name}</option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Código / TAG do Ativo EAM (Opções)</label>
+              <input
+                type="text"
+                value={assetCode}
+                onChange={e => setAssetCode(e.target.value)}
+                placeholder="Ex: AST-CHILLER-01"
+                className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 font-mono text-white focus:outline-none focus:border-blue-500/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Centro de Custo Responsável</label>
+              <input
+                type="text"
+                value={costCenter}
+                onChange={e => setCostCenter(e.target.value)}
+                placeholder="Ex: CC-FAC-2026"
+                className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 font-mono text-white focus:outline-none focus:border-blue-500/50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Grau de Impacto Operacional</label>
+              <select
+                value={impactLevel}
+                onChange={e => setImpactLevel(e.target.value as any)}
+                className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white focus:outline-none focus:border-blue-500/50"
+              >
+                <option value="NENHUM">Sem Impacto Direto nas Atividades</option>
+                <option value="PARCIAL">Impacto Parcial no Setor</option>
+                <option value="TOTAL">Paralisação Total Crítica</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Anexar Evidência Digital / Foto</label>
+              <input
+                type="text"
+                value={attachmentName}
+                onChange={e => setAttachmentName(e.target.value)}
+                placeholder="Ex: foto_vazamento_chiller_01.jpg"
+                className="w-full px-3 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white focus:outline-none focus:border-blue-500/50"
+              />
             </div>
           </div>
 

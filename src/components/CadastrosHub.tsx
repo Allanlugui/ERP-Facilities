@@ -10,7 +10,8 @@ import {
   Phone,
   Mail,
   Award,
-  Star
+  Star,
+  X
 } from 'lucide-react';
 import { Client, Unit, Collaborator, Supplier } from '../types';
 
@@ -39,10 +40,64 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
   const [modalType, setModalType] = useState<string | null>(null);
 
   // Form states
-  const [clientForm, setClientForm] = useState({ corporateName: '', fantasyName: '', cnpj: '', contactEmail: '', contactPhone: '' });
-  const [unitForm, setUnitForm] = useState({ name: '', code: '', address: '', city: 'São Paulo', state: 'SP', managerName: '', contactPhone: '' });
-  const [colabForm, setColabForm] = useState({ name: '', cpf: '', email: '', phone: '', roleTitle: 'Técnico de Facilities', nrCertificationsStr: 'NR-10, NR-35' });
-  const [supplierForm, setSupplierForm] = useState({ corporateName: '', cnpj: '', category: 'AR_CONDICIONADO', contactEmail: '', phone: '' });
+  const [clientForm, setClientForm] = useState({
+    corporateName: '',
+    fantasyName: '',
+    cnpj: '',
+    stateRegistration: '',
+    municipalRegistration: '',
+    taxRegime: 'LUCRO_PRESUMIDO' as 'SIMPLES' | 'LUCRO_PRESUMIDO' | 'LUCRO_REAL',
+    fullAddress: '',
+    legalRepName: '',
+    legalRepCpf: '',
+    contactEmail: '',
+    contactPhone: ''
+  });
+
+  const [unitForm, setUnitForm] = useState({
+    name: '',
+    code: '',
+    clientId: 'cli-001',
+    address: '',
+    city: 'São Paulo',
+    state: 'SP',
+    iptuMunicipalCode: '',
+    builtAreaSqm: 2500,
+    maxOccupancy: 350,
+    avcbNumber: '',
+    avcbValidUntil: '2027-12-31',
+    energyMeterId: '',
+    waterMeterId: '',
+    managerName: '',
+    contactPhone: ''
+  });
+
+  const [colabForm, setColabForm] = useState({
+    name: '',
+    cpf: '',
+    email: '',
+    phone: '',
+    roleTitle: 'Técnico de Facilities / Manutenção',
+    creaCftReg: 'CREA-SP ',
+    asoValidUntil: '2026-12-31',
+    epiSize: 'G',
+    nrCertificationsStr: 'NR-10, NR-35, NR-33'
+  });
+
+  const [supplierForm, setSupplierForm] = useState({
+    corporateName: '',
+    cnpj: '',
+    stateRegistration: '',
+    category: 'AR_CONDICIONADO' as any,
+    contactEmail: '',
+    phone: '',
+    emergencyPhone24h: '',
+    cndValidUntil: '2027-06-30',
+    insurancePolicyNumber: '',
+    insuranceCoverageValue: 500000,
+    techRespCrea: '',
+    isoCertifications: 'ISO 9001, ISO 45001'
+  });
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -226,49 +281,148 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
 
       {/* Modal CADASTRO CLIENTE */}
       {modalType === 'clients' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-2xl max-w-md w-full border border-slate-200 shadow-xl space-y-4 text-slate-900">
-            <h3 className="text-base font-bold text-slate-900">Novo Cliente Corporativo</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white p-6 rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl space-y-4 text-slate-900 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Novo Cliente Corporativo</h3>
+                <p className="text-[11px] text-slate-500">Mapeamento jurídico, fiscal e representação contratual</p>
+              </div>
+              <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={(e) => {
               e.preventDefault();
               onAddClient(clientForm);
               setModalType(null);
-            }} className="space-y-3.5 text-xs">
-              <input
-                type="text"
-                placeholder="Razão Social"
-                required
-                value={clientForm.corporateName}
-                onChange={e => setClientForm({ ...clientForm, corporateName: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="CNPJ"
-                required
-                value={clientForm.cnpj}
-                onChange={e => setClientForm({ ...clientForm, cnpj: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="email"
-                placeholder="E-mail de Contato"
-                required
-                value={clientForm.contactEmail}
-                onChange={e => setClientForm({ ...clientForm, contactEmail: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Telefone"
-                required
-                value={clientForm.contactPhone}
-                onChange={e => setClientForm({ ...clientForm, contactPhone: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <div className="pt-3 flex justify-end gap-2">
+            }} className="space-y-3 text-xs">
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Razão Social (Legal)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: TechCorp Soluções Tecnológicas S.A."
+                    required
+                    value={clientForm.corporateName}
+                    onChange={e => setClientForm({ ...clientForm, corporateName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Nome Fantasia</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: TechCorp Brasil"
+                    required
+                    value={clientForm.fantasyName}
+                    onChange={e => setClientForm({ ...clientForm, fantasyName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">CNPJ do Contrato</label>
+                  <input
+                    type="text"
+                    placeholder="00.000.000/0001-00"
+                    required
+                    value={clientForm.cnpj}
+                    onChange={e => setClientForm({ ...clientForm, cnpj: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Inscrição Estadual (IE)</label>
+                  <input
+                    type="text"
+                    placeholder="123.456.789.111"
+                    value={clientForm.stateRegistration}
+                    onChange={e => setClientForm({ ...clientForm, stateRegistration: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Regime Tributário</label>
+                  <select
+                    value={clientForm.taxRegime}
+                    onChange={e => setClientForm({ ...clientForm, taxRegime: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500 font-medium"
+                  >
+                    <option value="SIMPLES">Simples Nacional</option>
+                    <option value="LUCRO_PRESUMIDO">Lucro Presumido</option>
+                    <option value="LUCRO_REAL">Lucro Real</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Endereço Fiscal / Sede da Empresa</label>
+                <input
+                  type="text"
+                  placeholder="Av. Paulista, 1000 - Bela Vista, São Paulo - SP"
+                  required
+                  value={clientForm.fullAddress}
+                  onChange={e => setClientForm({ ...clientForm, fullAddress: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Representante Legal (Nome)</label>
+                  <input
+                    type="text"
+                    placeholder="Nome do Diretor / Procurador"
+                    value={clientForm.legalRepName}
+                    onChange={e => setClientForm({ ...clientForm, legalRepName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">CPF do Representante</label>
+                  <input
+                    type="text"
+                    placeholder="000.000.000-00"
+                    value={clientForm.legalRepCpf}
+                    onChange={e => setClientForm({ ...clientForm, legalRepCpf: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">E-mail do DPO / Gestor</label>
+                  <input
+                    type="email"
+                    placeholder="facilities@techcorp.com.br"
+                    required
+                    value={clientForm.contactEmail}
+                    onChange={e => setClientForm({ ...clientForm, contactEmail: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Telefone Principal</label>
+                  <input
+                    type="text"
+                    placeholder="(11) 3000-0000"
+                    required
+                    value={clientForm.contactPhone}
+                    onChange={e => setClientForm({ ...clientForm, contactPhone: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
                 <button type="button" onClick={() => setModalType(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Cliente</button>
+                <button type="submit" className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Cliente Corporativo</button>
               </div>
             </form>
           </div>
@@ -277,49 +431,144 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
 
       {/* Modal CADASTRO UNIDADE */}
       {modalType === 'units' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-2xl max-w-md w-full border border-slate-200 shadow-xl space-y-4 text-slate-900">
-            <h3 className="text-base font-bold text-slate-900">Nova Unidade Operacional</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white p-6 rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl space-y-4 text-slate-900 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Nova Unidade Operacional / Edifício</h3>
+                <p className="text-[11px] text-slate-500">Mapeamento de área física, dados municipais, AVCB e medidores</p>
+              </div>
+              <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={(e) => {
               e.preventDefault();
               onAddUnit({ ...unitForm, clientId: 'cli-001' });
               setModalType(null);
-            }} className="space-y-3.5 text-xs">
-              <input
-                type="text"
-                placeholder="Nome do Prédio / Unidade"
-                required
-                value={unitForm.name}
-                onChange={e => setUnitForm({ ...unitForm, name: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Código da Unidade (Ex: UNIT-A01)"
-                required
-                value={unitForm.code}
-                onChange={e => setUnitForm({ ...unitForm, code: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Endereço Completo"
-                required
-                value={unitForm.address}
-                onChange={e => setUnitForm({ ...unitForm, address: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Nome do Gestor Responsável"
-                required
-                value={unitForm.managerName}
-                onChange={e => setUnitForm({ ...unitForm, managerName: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <div className="pt-3 flex justify-end gap-2">
+            }} className="space-y-3 text-xs">
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Nome do Prédio / Complexo</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Torre Corporate - Faria Lima"
+                    required
+                    value={unitForm.name}
+                    onChange={e => setUnitForm({ ...unitForm, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Código da Unidade</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: UNIT-FL-01"
+                    required
+                    value={unitForm.code}
+                    onChange={e => setUnitForm({ ...unitForm, code: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Endereço Completo</label>
+                <input
+                  type="text"
+                  placeholder="Av. Brig. Faria Lima, 3477 - Itaim Bibi, São Paulo - SP"
+                  required
+                  value={unitForm.address}
+                  onChange={e => setUnitForm({ ...unitForm, address: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Inscrição IPTU / Código</label>
+                  <input
+                    type="text"
+                    placeholder="087.123.0098-1"
+                    value={unitForm.iptuMunicipalCode}
+                    onChange={e => setUnitForm({ ...unitForm, iptuMunicipalCode: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Área Útil (m²)</label>
+                  <input
+                    type="number"
+                    placeholder="2500"
+                    value={unitForm.builtAreaSqm}
+                    onChange={e => setUnitForm({ ...unitForm, builtAreaSqm: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Capacidade Ocupantes</label>
+                  <input
+                    type="number"
+                    placeholder="350"
+                    value={unitForm.maxOccupancy}
+                    onChange={e => setUnitForm({ ...unitForm, maxOccupancy: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-200/60">
+                <div>
+                  <label className="block text-amber-900 font-bold mb-1">Nº Licença AVCB / CLCB (Bombeiros)</label>
+                  <input
+                    type="text"
+                    placeholder="AVCB-SP-2024-9842"
+                    value={unitForm.avcbNumber}
+                    onChange={e => setUnitForm({ ...unitForm, avcbNumber: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 bg-white font-mono text-slate-900 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-amber-900 font-bold mb-1">Validade do AVCB</label>
+                  <input
+                    type="date"
+                    value={unitForm.avcbValidUntil}
+                    onChange={e => setUnitForm({ ...unitForm, avcbValidUntil: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 bg-white font-mono text-slate-900 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Gestor Predial Responsável</label>
+                  <input
+                    type="text"
+                    placeholder="Nome do Gestor de Operações"
+                    required
+                    value={unitForm.managerName}
+                    onChange={e => setUnitForm({ ...unitForm, managerName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Telefone da Portaria / Central</label>
+                  <input
+                    type="text"
+                    placeholder="(11) 98888-0000"
+                    required
+                    value={unitForm.contactPhone}
+                    onChange={e => setUnitForm({ ...unitForm, contactPhone: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
                 <button type="button" onClick={() => setModalType(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Unidade</button>
+                <button type="submit" className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Unidade Operacional</button>
               </div>
             </form>
           </div>
@@ -328,9 +577,18 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
 
       {/* Modal CADASTRO COLABORADOR */}
       {modalType === 'collaborators' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-2xl max-w-md w-full border border-slate-200 shadow-xl space-y-4 text-slate-900">
-            <h3 className="text-base font-bold text-slate-900">Novo Colaborador Técnico</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white p-6 rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl space-y-4 text-slate-900 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Novo Colaborador Técnico</h3>
+                <p className="text-[11px] text-slate-500">Mapeamento de certificações NR, ASO e habilitação CREA/CFT</p>
+              </div>
+              <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={(e) => {
               e.preventDefault();
               onAddCollaborator({
@@ -338,41 +596,95 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
                 nrCertifications: colabForm.nrCertificationsStr.split(',').map(s => s.trim())
               });
               setModalType(null);
-            }} className="space-y-3.5 text-xs">
-              <input
-                type="text"
-                placeholder="Nome Completo"
-                required
-                value={colabForm.name}
-                onChange={e => setColabForm({ ...colabForm, name: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="CPF"
-                required
-                value={colabForm.cpf}
-                onChange={e => setColabForm({ ...colabForm, cpf: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="email"
-                placeholder="E-mail"
-                required
-                value={colabForm.email}
-                onChange={e => setColabForm({ ...colabForm, email: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Certificações NR (separadas por vírgula)"
-                value={colabForm.nrCertificationsStr}
-                onChange={e => setColabForm({ ...colabForm, nrCertificationsStr: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <div className="pt-3 flex justify-end gap-2">
+            }} className="space-y-3 text-xs">
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Nome Completo do Técnico</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Carlos Eduardo Silva"
+                    required
+                    value={colabForm.name}
+                    onChange={e => setColabForm({ ...colabForm, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">CPF do Colaborador</label>
+                  <input
+                    type="text"
+                    placeholder="000.000.000-00"
+                    required
+                    value={colabForm.cpf}
+                    onChange={e => setColabForm({ ...colabForm, cpf: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Cargo / Especialidade</label>
+                  <input
+                    type="text"
+                    placeholder="Técnico Eletricista / HVAC"
+                    required
+                    value={colabForm.roleTitle}
+                    onChange={e => setColabForm({ ...colabForm, roleTitle: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Registro CREA / CFT / CRQ</label>
+                  <input
+                    type="text"
+                    placeholder="CREA-SP 50698123"
+                    value={colabForm.creaCftReg}
+                    onChange={e => setColabForm({ ...colabForm, creaCftReg: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">E-mail Corporativo</label>
+                  <input
+                    type="email"
+                    placeholder="carlos.silva@facilities.com.br"
+                    required
+                    value={colabForm.email}
+                    onChange={e => setColabForm({ ...colabForm, email: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Validade ASO (Saúde Ocupacional)</label>
+                  <input
+                    type="date"
+                    required
+                    value={colabForm.asoValidUntil}
+                    onChange={e => setColabForm({ ...colabForm, asoValidUntil: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Certificações de Segurança NR (separadas por vírgula)</label>
+                <input
+                  type="text"
+                  placeholder="NR-10, NR-35, NR-33, NR-12"
+                  value={colabForm.nrCertificationsStr}
+                  onChange={e => setColabForm({ ...colabForm, nrCertificationsStr: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
                 <button type="button" onClick={() => setModalType(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Técnico</button>
+                <button type="submit" className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Salvar Técnico Habilitado</button>
               </div>
             </form>
           </div>
@@ -381,44 +693,125 @@ export const CadastrosHub: React.FC<CadastrosHubProps> = ({
 
       {/* Modal CADASTRO FORNECEDOR */}
       {modalType === 'suppliers' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-2xl max-w-md w-full border border-slate-200 shadow-xl space-y-4 text-slate-900">
-            <h3 className="text-base font-bold text-slate-900">Novo Fornecedor Terceirizado</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white p-6 rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl space-y-4 text-slate-900 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Novo Fornecedor Terceirizado Homologado</h3>
+                <p className="text-[11px] text-slate-500">Homologação fiscal, apólice de seguro e qualificação técnica ISO</p>
+              </div>
+              <button onClick={() => setModalType(null)} className="text-slate-400 hover:text-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={(e) => {
               e.preventDefault();
               onAddSupplier(supplierForm);
               setModalType(null);
-            }} className="space-y-3.5 text-xs">
-              <input
-                type="text"
-                placeholder="Razão Social"
-                required
-                value={supplierForm.corporateName}
-                onChange={e => setSupplierForm({ ...supplierForm, corporateName: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="CNPJ"
-                required
-                value={supplierForm.cnpj}
-                onChange={e => setSupplierForm({ ...supplierForm, cnpj: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              />
-              <select
-                value={supplierForm.category}
-                onChange={e => setSupplierForm({ ...supplierForm, category: e.target.value as any })}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
-              >
-                <option value="AR_CONDICIONADO">Ar Condicionado / HVAC</option>
-                <option value="ELETIRCA">Elétrica & Energia</option>
-                <option value="CIVIL">Manutenção Civil</option>
-                <option value="LIMPEZA">Limpeza & Sanitização</option>
-                <option value="ELEVADORES">Elevadores</option>
-              </select>
-              <div className="pt-3 flex justify-end gap-2">
+            }} className="space-y-3 text-xs">
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Razão Social</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: ClimaTech Ar Condicionado Ltda"
+                    required
+                    value={supplierForm.corporateName}
+                    onChange={e => setSupplierForm({ ...supplierForm, corporateName: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">CNPJ</label>
+                  <input
+                    type="text"
+                    placeholder="00.000.000/0001-00"
+                    required
+                    value={supplierForm.cnpj}
+                    onChange={e => setSupplierForm({ ...supplierForm, cnpj: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Categoria de Atuação</label>
+                  <select
+                    value={supplierForm.category}
+                    onChange={e => setSupplierForm({ ...supplierForm, category: e.target.value as any })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500 font-medium"
+                  >
+                    <option value="AR_CONDICIONADO">Ar Condicionado / HVAC</option>
+                    <option value="ELETIRCA">Elétrica & Energia</option>
+                    <option value="CIVIL">Manutenção Civil & Pintura</option>
+                    <option value="LIMPEZA">Limpeza & Sanitização</option>
+                    <option value="ELEVADORES">Elevadores & Escadas Rolantes</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Validade CND (Fiscal)</label>
+                  <input
+                    type="date"
+                    required
+                    value={supplierForm.cndValidUntil}
+                    onChange={e => setSupplierForm({ ...supplierForm, cndValidUntil: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 p-3 bg-indigo-50/50 rounded-xl border border-indigo-200/60">
+                <div>
+                  <label className="block text-indigo-900 font-bold mb-1">Nº Apólice Seguro Resp. Civil</label>
+                  <input
+                    type="text"
+                    placeholder="APOL-MAPFRE-98421"
+                    value={supplierForm.insurancePolicyNumber}
+                    onChange={e => setSupplierForm({ ...supplierForm, insurancePolicyNumber: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-indigo-300 bg-white font-mono text-slate-900 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-indigo-900 font-bold mb-1">Limite Cobertura (R$)</label>
+                  <input
+                    type="number"
+                    placeholder="500000"
+                    value={supplierForm.insuranceCoverageValue}
+                    onChange={e => setSupplierForm({ ...supplierForm, insuranceCoverageValue: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-xl border border-indigo-300 bg-white font-mono text-slate-900 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Engenheiro Resp. Técnico (CREA)</label>
+                  <input
+                    type="text"
+                    placeholder="Eng. Fernando Costa (CREA-SP)"
+                    value={supplierForm.techRespCrea}
+                    onChange={e => setSupplierForm({ ...supplierForm, techRespCrea: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Certificações ISO</label>
+                  <input
+                    type="text"
+                    placeholder="ISO 9001, ISO 45001"
+                    value={supplierForm.isoCertifications}
+                    onChange={e => setSupplierForm({ ...supplierForm, isoCertifications: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-mono text-slate-900 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
                 <button type="button" onClick={() => setModalType(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Homologar Fornecedor</button>
+                <button type="submit" className="px-5 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-xs">Homologar Fornecedor</button>
               </div>
             </form>
           </div>
