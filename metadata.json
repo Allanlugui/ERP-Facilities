@@ -1,0 +1,6 @@
+{
+  "name": "Gestão de Facilities e Governança",
+  "description": "Ecossistema central de Facilities IWMS/CMMS Enterprise: gestão de ativos, PMOC, portal do inquilino com NPS, BI executivo, SLA dinâmico, compliance e governança.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
