@@ -326,6 +326,43 @@ export default function App() {
     }
   };
 
+  const handleUpdateAsset = async (id: string, assetData: Partial<Asset>, auditJustification?: string) => {
+    try {
+      const res = await fetch(`/api/eam/assets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...assetData, auditJustification })
+      });
+      if (res.ok) {
+        const updatedAsset = await res.json();
+        setAssets(prev => prev.map(a => a.id === id ? updatedAsset : a));
+
+        const logsRes = await fetch('/api/audit-logs');
+        if (logsRes.ok) setAuditLogs(await logsRes.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteAsset = async (id: string, reason: string) => {
+    try {
+      const res = await fetch(`/api/eam/assets/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      if (res.ok) {
+        setAssets(prev => prev.filter(a => a.id !== id));
+
+        const logsRes = await fetch('/api/audit-logs');
+        if (logsRes.ok) setAuditLogs(await logsRes.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleAddPlan = async (planData: Partial<MaintenancePlan>) => {
     try {
       const res = await fetch('/api/eam/plans', {
@@ -470,7 +507,11 @@ export default function App() {
               assets={assets}
               maintenancePlans={maintenancePlans}
               units={units}
+              tickets={tickets}
+              currentUser={currentUser}
               onAddAsset={handleAddAsset}
+              onUpdateAsset={handleUpdateAsset}
+              onDeleteAsset={handleDeleteAsset}
               onAddPlan={handleAddPlan}
             />
           )}

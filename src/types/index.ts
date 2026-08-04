@@ -10,7 +10,7 @@ export type DocStatus = 'ATIVO' | 'PENDENTE' | 'EXPIRADO';
 
 export type AssetCategory = 'HVAC_CHILLER' | 'GERADOR_NOBREAK' | 'SUBESTACAO_ELETRICA' | 'COMBATE_INCENDIO' | 'ELEVADORES' | 'BOMBAS_HIDRAULICAS';
 
-export type AssetStatus = 'OPERACIONAL' | 'EM_MANUTENCAO' | 'CRITICO' | 'DESACTIVADO';
+export type AssetStatus = 'OPERACIONAL' | 'EM_MANUTENCAO' | 'CRITICO' | 'EM_ESTOQUE' | 'BAIXADO' | 'DESACTIVADO';
 
 export type PlanFrequency = 'SEMANAL' | 'MENSAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL';
 
@@ -186,23 +186,88 @@ export interface FacilityTicket {
   updatedAt: string;
 }
 
+export interface AssetAttachment {
+  id: string;
+  title: string;
+  type: 'NF_PDF' | 'PLACA_SERIAL_FOTO' | 'TERMO_GARANTIA' | 'LAUDO_COMISSIONAMENTO' | 'OUTROS';
+  fileName: string;
+  fileUrl?: string;
+  uploadedAt: string;
+}
+
+export interface TechnicalAttributes {
+  // Motor Elétrico
+  powerKwCv?: string;
+  currentAmperes?: string;
+  voltageV?: string;
+  rpm?: string;
+  bearingType?: string;
+  // Ar-Condicionado
+  btusCapacity?: string;
+  refrigerantGas?: string;
+  compressorType?: string;
+  // TI / Computador
+  processor?: string;
+  ramGb?: string;
+  storageSsd?: string;
+  macAddress?: string;
+  // Custom key-value
+  customFields?: Record<string, string>;
+}
+
 export interface Asset {
   id: string;
-  code: string;
+  code: string; // TAG de Ativo (ex: AST-CHILLER-01)
+  patrimonyCode?: string; // Plaqueta de auditoria contábil (ex: PAT-984210)
   name: string;
   category: AssetCategory;
   unitId: string;
   unitName: string;
-  locationArea: string;
-  serialNumber: string;
+  cnpj?: string; // CNPJ Filial
+  department?: string; // Centro de Custo / Departamento
+  locationArea: string; // Ex: Prédio A, 3º Andar, Sala 302
+  building?: string;
+  floor?: string;
+  room?: string;
+  status: AssetStatus; // 'OPERACIONAL' | 'EM_MANUTENCAO' | 'CRITICO' | 'DESACTIVADO'
+  
+  // Fiscal & Contratual
+  nfeNumber?: string;
+  nfeAccessKey?: string; // 44 dígitos
+  nfeIssueDate?: string;
+  purchaseDate?: string;
+  receiptDate?: string;
+  startupDate?: string; // Start-up / colocação em marcha
+  warrantyMonths?: number;
+  warrantyValidUntil: string;
+  estimatedValue: number; // Valor Patrimonial / Aquisição
+  acquisitionValue?: number;
+
+  // Rastreabilidade do Produto
   manufacturer: string;
   model: string;
+  partNumber?: string;
+  serialNumber: string;
+  serialPhotoUrl?: string;
+  batchNumber?: string;
+  manufactureDate?: string;
+
+  // Instalação & Operação
+  installerTechName?: string;
+  installerCreaCft?: string;
+  startupReportId?: string;
+
+  // Anexos
+  attachments?: AssetAttachment[];
+
+  // Atributos Técnicos Dinâmicos por Categoria
+  technicalAttributes?: TechnicalAttributes;
+
+  // Auditoria e Governança
+  registeredBy?: string; // Nome + CPF/ID em audit trail
   installDate: string;
-  warrantyValidUntil: string;
-  status: AssetStatus;
   lastInterventionDate: string;
   nextPreventiveDate: string;
-  estimatedValue: number;
   createdAt: string;
 }
 

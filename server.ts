@@ -582,25 +582,55 @@ app.get('/api/eam/assets', (req: Request, res: Response) => {
 });
 
 app.post('/api/eam/assets', (req: Request, res: Response) => {
-  const { name, category, unitId, unitName, locationArea, serialNumber, manufacturer, model, estimatedValue } = req.body;
+  const assetData = req.body;
 
+  const category = assetData.category || 'GERADOR_NOBREAK';
   const newAsset: Asset = {
     id: `ast-${Date.now()}`,
-    code: `AST-${category || 'EQUIP'}-${Math.floor(Math.random() * 900 + 100)}`,
-    name: name || 'Equipamento Crítico Predial',
-    category: category || 'GERADOR_NOBREAK',
-    unitId: unitId || 'unit-01',
-    unitName: unitName || 'Torre Berrini',
-    locationArea: locationArea || 'Casa de Máquinas',
-    serialNumber: serialNumber || `SN-${Date.now().toString().slice(-6)}`,
-    manufacturer: manufacturer || 'Fabricante Industrial',
-    model: model || 'Modelo Standard',
-    installDate: new Date().toISOString().slice(0, 10),
-    warrantyValidUntil: '2028-12-31',
-    status: 'OPERACIONAL',
-    lastInterventionDate: new Date().toISOString().slice(0, 10),
-    nextPreventiveDate: '2026-09-01',
-    estimatedValue: Number(estimatedValue) || 150000.00,
+    code: assetData.code || `AST-${category}-${Math.floor(Math.random() * 900 + 100)}`,
+    patrimonyCode: assetData.patrimonyCode || `PAT-${Math.floor(Math.random() * 899999 + 100000)}`,
+    name: assetData.name || 'Equipamento Crítico Predial',
+    category: category,
+    unitId: assetData.unitId || 'unit-01',
+    unitName: assetData.unitName || 'Torre Berrini',
+    cnpj: assetData.cnpj || '33.123.456/0001-00',
+    department: assetData.department || 'Operações & Facilities',
+    locationArea: assetData.locationArea || 'Casa de Máquinas',
+    building: assetData.building || '',
+    floor: assetData.floor || '',
+    room: assetData.room || '',
+    status: assetData.status || 'OPERACIONAL',
+    
+    nfeNumber: assetData.nfeNumber || '',
+    nfeAccessKey: assetData.nfeAccessKey || '',
+    nfeIssueDate: assetData.nfeIssueDate || '',
+    purchaseDate: assetData.purchaseDate || '',
+    receiptDate: assetData.receiptDate || '',
+    startupDate: assetData.startupDate || new Date().toISOString().slice(0, 10),
+    warrantyMonths: Number(assetData.warrantyMonths) || 60,
+    warrantyValidUntil: assetData.warrantyValidUntil || '2029-12-31',
+    estimatedValue: Number(assetData.estimatedValue) || 150000.00,
+    acquisitionValue: Number(assetData.acquisitionValue) || Number(assetData.estimatedValue) || 150000.00,
+
+    manufacturer: assetData.manufacturer || 'Fabricante Industrial',
+    model: assetData.model || 'Modelo Standard',
+    partNumber: assetData.partNumber || '',
+    serialNumber: assetData.serialNumber || `SN-${Date.now().toString().slice(-6)}`,
+    serialPhotoUrl: assetData.serialPhotoUrl || '',
+    batchNumber: assetData.batchNumber || '',
+    manufactureDate: assetData.manufactureDate || '',
+
+    installerTechName: assetData.installerTechName || 'Técnico Responsável',
+    installerCreaCft: assetData.installerCreaCft || 'CREA-SP 00000',
+    startupReportId: assetData.startupReportId || '',
+
+    attachments: assetData.attachments || [],
+    technicalAttributes: assetData.technicalAttributes || {},
+
+    registeredBy: assetData.registeredBy || 'Eng. Carlos Silva (CPF 123.***.***-00)',
+    installDate: assetData.installDate || new Date().toISOString().slice(0, 10),
+    lastInterventionDate: assetData.lastInterventionDate || new Date().toISOString().slice(0, 10),
+    nextPreventiveDate: assetData.nextPreventiveDate || '2026-09-01',
     createdAt: new Date().toISOString()
   };
 
@@ -614,10 +644,70 @@ app.post('/api/eam/assets', (req: Request, res: Response) => {
     action: 'CREATE',
     entity: 'ATIVO',
     entityId: newAsset.id,
-    details: `Ativo crítico cadastrado no inventário EAM: [${newAsset.code}] ${newAsset.name}`
+    details: `Ativo EAM cadastrado com validade jurídica [${newAsset.code} - ${newAsset.patrimonyCode}]: ${newAsset.name}`
   });
 
   res.status(201).json(newAsset);
+});
+
+app.put('/api/eam/assets/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = dbAssets.findIndex(a => a.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Ativo não encontrado' });
+  }
+
+  const { auditJustification, ...updatedFields } = req.body;
+  const currentAsset = dbAssets[index];
+
+  const updatedAsset: Asset = {
+    ...currentAsset,
+    ...updatedFields,
+    id: currentAsset.id // Protect ID
+  };
+
+  dbAssets[index] = updatedAsset;
+
+  recordAuditLog({
+    userId: 'u-admin-01',
+    userName: 'Carlos Silva',
+    userRole: 'ADMIN',
+    tenantId: 't-001',
+    action: 'UPDATE',
+    entity: 'ATIVO',
+    entityId: id,
+    details: auditJustification 
+      ? `Atualização de Ativo [${updatedAsset.code}] com Justificativa de Governança: "${auditJustification}"`
+      : `Atualização de Ficha Técnica do Ativo [${updatedAsset.code}] ${updatedAsset.name}`
+  });
+
+  res.json(updatedAsset);
+});
+
+app.delete('/api/eam/assets/:id', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const reason = (req.query.reason as string) || (req.body && req.body.reason) || 'Baixa de ativo patrimonial por encerramento/sinistro';
+  const index = dbAssets.findIndex(a => a.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Ativo não encontrado' });
+  }
+
+  const removed = dbAssets.splice(index, 1)[0];
+
+  recordAuditLog({
+    userId: 'u-admin-01',
+    userName: 'Carlos Silva',
+    userRole: 'ADMIN',
+    tenantId: 't-001',
+    action: 'DELETE',
+    entity: 'ATIVO',
+    entityId: id,
+    details: `Baixa/Exclusão do Ativo Patrimonial [${removed.code} - ${removed.patrimonyCode}]. Motivo Auditado: "${reason}"`
+  });
+
+  res.json({ success: true, removed });
 });
 
 app.get('/api/eam/plans', (req: Request, res: Response) => {
@@ -695,4 +785,9 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
+
